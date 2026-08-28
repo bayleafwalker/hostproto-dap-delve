@@ -14,7 +14,7 @@
     "start": "tsx src/stdio.ts"
   },
   "dependencies": {
-    "hostproto-dap-core": "github:bayleafwalker/hostproto-dap-core#5d03a1d259c8596e79dbedf61841a6131da3c6f4"
+    "hostproto-dap-core": "github:bayleafwalker/hostproto-dap-core#49c4edd7a7c5efd98e5958eb842b5bcf01aa2382"
   },
   "devDependencies": {
     "@modelcontextprotocol/client": "2.0.0",
