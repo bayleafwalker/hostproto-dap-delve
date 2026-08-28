@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "deviation": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "suppression"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rule_id",
+              "raw_ref"
+            ]
+          }
+        }
+      ],
+      "description": "Something the adapter did not fold into canonical state, or could not. Never dropped silently: counts and categories appear in evidence. A normalization layer that merely throws inconvenient callbacks away has failed.",
+      "properties": {
+        "data": {
+          "type": "object"
+        },
+        "kind": {
+          "enum": [
+            "suppression",
+            "unmapped_event",
+            "divergence",
+            "teardown_error",
+            "bounded_result"
+          ]
+        },
+        "object_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "raw_ref": {
+          "description": "Required for suppression: the raw record that was not folded into canonical state.",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "rule_id": {
+          "description": "Required for suppression: the normalization rule that suppressed a raw observation.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "reason"
+      ],
+      "title": "HostProto deviation v1",
+      "type": "object"
+    }
+  },
+  "$id": "https://hostproto.invalid/schemas/observation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bounded": {
+      "additionalProperties": false,
+      "description": "Loss is explicit. `omitted` counts, per projection, what was not returned for any reason; if lossy, raw_ref names the complete observation. A non-loss omission (for example a projection the host cannot serve in its current state) keeps lossy=false and must be explained by a deviation.",
+      "properties": {
+        "lossy": {
+          "type": "boolean"
+        },
+        "max_bytes": {
+          "minimum": 512,
+          "type": "integer"
+        },
+        "omitted": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "type": "object"
+        },
+        "raw_ref": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "max_bytes",
+        "lossy",
+        "omitted"
+      ],
+      "type": "object"
+    },
+    "cursor": {
+      "additionalProperties": false,
+      "description": "Position in the ordered event stream. `next` is the only ordered identifier in HostProto.",
+      "properties": {
+        "next": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "since": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "since",
+        "next"
+      ],
+      "type": "object"
+    },
+    "data": {
+      "description": "Per-projection payloads, each shaped by the adapter profile's projection schema.",
+      "type": "object"
+    },
+    "deviations": {
+      "items": {
+        "$ref": "#/$defs/deviation"
+      },
+      "type": "array"
+    },
+    "projections": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "provider": {
+      "enum": [
+        "engine",
+        "injected",
+        "host",
+        "oracle"
+      ]
+    },
+    "revision": {
+      "description": "Surface revision the observation was taken at. Increments when the surface's document/state is replaced (document commit, checkpoint restore, debug stop/continue).",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "hostproto.observation/v1"
+    },
+    "surface": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "surface",
+    "revision",
+    "cursor",
+    "projections",
+    "data",
+    "bounded",
+    "provider"
+  ],
+  "title": "HostProto observation v1",
+  "type": "object"
+}

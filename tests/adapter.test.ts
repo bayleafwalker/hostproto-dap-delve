@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { validator } from '../src/schemas.js';
+import { validator } from 'hostproto-dap-core';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 let client: Client; let transport: StdioClientTransport;

@@ -1,0 +1,51 @@
+{
+  "$id": "https://hostproto.invalid/schemas/target-ref.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actions": {
+      "description": "Intent kinds this target declares. An undeclared action is capability_unsupported, not attempted.",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "name": {
+      "type": "string"
+    },
+    "revision": {
+      "description": "Revision the target was observed at. An adapter MUST reject a target whose revision differs from the surface's current revision before invoking the host (error target_invalidated).",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "role": {
+      "description": "Profile-defined: link, textbox, file (browser); thread, frame, scope, variable (dap).",
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "hostproto.target-ref/v1"
+    },
+    "surface": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_id": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "surface",
+    "target_id",
+    "revision",
+    "role",
+    "actions"
+  ],
+  "title": "HostProto target reference v1",
+  "type": "object"
+}

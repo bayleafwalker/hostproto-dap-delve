@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "handle": {
+      "additionalProperties": false,
+      "properties": {
+        "expires": {
+          "description": "ISO-8601 or null for adapter-managed lifetime.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Opaque, server-minted. Never parsed by clients.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "host",
+            "context",
+            "surface"
+          ]
+        },
+        "lifecycle": {
+          "description": "Surface handles only. closed is terminal; terminated rejects operations but stays observable until released to closed. An id is never reused within a host.",
+          "enum": [
+            "creating",
+            "open",
+            "closing",
+            "closed",
+            "terminated"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://hostproto.invalid/schemas/handles.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "adapter_profile": {
+      "description": "Which capability profile minted these, e.g. browser/v1, dap/v1.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "context": {
+      "$ref": "#/$defs/handle"
+    },
+    "host": {
+      "$ref": "#/$defs/handle"
+    },
+    "schema_version": {
+      "const": "hostproto.handles/v1"
+    },
+    "surface": {
+      "$ref": "#/$defs/handle"
+    },
+    "writer": {
+      "additionalProperties": false,
+      "description": "Context-level single-writer fencing. Epoch increments on every handover.",
+      "properties": {
+        "epoch": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "fence_id": {
+          "description": "Opaque, server-minted. Never parsed by clients.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "holder": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fence_id",
+        "epoch"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "host",
+    "context",
+    "surface",
+    "adapter_profile"
+  ],
+  "title": "HostProto handles v1",
+  "type": "object"
+}

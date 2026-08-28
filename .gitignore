@@ -1,6 +1,5 @@
 node_modules/
 dist/
-schemas/
 
 *.log
 __pycache__/

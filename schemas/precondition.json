@@ -1,0 +1,47 @@
+{
+  "$id": "https://hostproto.invalid/schemas/precondition.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Declared by the caller, checked by the adapter before the host is touched. Failure is precondition_failed and the host was not invoked.",
+  "properties": {
+    "assertions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "equals": {},
+          "field": {
+            "description": "Profile-defined assertable field: url, title (browser); stopped, thread_id (dap).",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "equals"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "revision": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "hostproto.precondition/v1"
+    },
+    "surface": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "surface",
+    "assertions"
+  ],
+  "title": "HostProto precondition v1",
+  "type": "object"
+}

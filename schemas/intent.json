@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "precondition": {
+      "additionalProperties": false,
+      "description": "Declared by the caller, checked by the adapter before the host is touched. Failure is precondition_failed and the host was not invoked.",
+      "properties": {
+        "assertions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "equals": {},
+              "field": {
+                "description": "Profile-defined assertable field: url, title (browser); stopped, thread_id (dap).",
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "field",
+              "equals"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "revision": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "hostproto.precondition/v1"
+        },
+        "surface": {
+          "description": "Opaque, server-minted. Never parsed by clients.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "surface",
+        "assertions"
+      ],
+      "title": "HostProto precondition v1",
+      "type": "object"
+    },
+    "target-ref": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "description": "Intent kinds this target declares. An undeclared action is capability_unsupported, not attempted.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "revision": {
+          "description": "Revision the target was observed at. An adapter MUST reject a target whose revision differs from the surface's current revision before invoking the host (error target_invalidated).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "role": {
+          "description": "Profile-defined: link, textbox, file (browser); thread, frame, scope, variable (dap).",
+          "minLength": 1,
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "hostproto.target-ref/v1"
+        },
+        "surface": {
+          "description": "Opaque, server-minted. Never parsed by clients.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_id": {
+          "description": "Opaque, server-minted. Never parsed by clients.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "surface",
+        "target_id",
+        "revision",
+        "role",
+        "actions"
+      ],
+      "title": "HostProto target reference v1",
+      "type": "object"
+    }
+  },
+  "$id": "https://hostproto.invalid/schemas/intent.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "action_id": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "decision_token": {
+      "description": "For intents that resolve a host-owned request (dialog, permission, file chooser). Consumed exactly once.",
+      "type": "string"
+    },
+    "declared_effects": {
+      "description": "What the caller expects to change. Compared against Receipt.effects by conformance tooling, never enforced by the adapter.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "kind": {
+      "description": "Member of the adapter profile's closed intent family.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "params": {
+      "type": "object"
+    },
+    "preconditions": {
+      "$ref": "#/$defs/precondition"
+    },
+    "schema_version": {
+      "const": "hostproto.intent/v1"
+    },
+    "surface": {
+      "description": "Opaque, server-minted. Never parsed by clients.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/target-ref"
+    }
+  },
+  "required": [
+    "schema_version",
+    "action_id",
+    "surface",
+    "kind"
+  ],
+  "title": "HostProto intent v1",
+  "type": "object"
+}

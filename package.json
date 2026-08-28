@@ -3,23 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "HostProto DAP adapter: a Delve (Go) session exposed through MCP 2026-07-28",
+  "description": "HostProto DAP binding: Delve (Go) on hostproto-dap-core",
   "license": "MIT",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "schemas": "node scripts/fetch-schemas.mjs",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "start": "tsx src/stdio.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/client": "2.0.0",
-    "@modelcontextprotocol/core": "2.0.0",
-    "@modelcontextprotocol/server": "2.0.0",
-    "ajv": "8.20.0",
-    "ajv-formats": "3.0.1"
+    "hostproto-dap-core": "github:bayleafwalker/hostproto-dap-core#5d03a1d259c8596e79dbedf61841a6131da3c6f4"
   },
   "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
     "@types/node": "24.10.0",
     "tsx": "4.23.12",
     "typescript": "5.9.3",

@@ -1,0 +1,53 @@
+{
+  "$id": "https://hostproto.invalid/schemas/evidence-ref.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Content-addressed. A reference never implies authority to retrieve data outside the evidence bundle it belongs to.",
+  "properties": {
+    "media_type": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "path": {
+      "description": "Location inside its evidence bundle only.",
+      "type": "string"
+    },
+    "ref": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "hostproto.evidence-ref/v1"
+    },
+    "size_bytes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "source_refs": {
+      "description": "Raw records a normalized artifact was derived from.",
+      "items": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "surface_class": {
+      "enum": [
+        "raw",
+        "normalized",
+        "contract",
+        "diagnostic",
+        "redacted"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "ref",
+    "surface_class",
+    "media_type",
+    "size_bytes"
+  ],
+  "title": "HostProto evidence reference v1",
+  "type": "object"
+}

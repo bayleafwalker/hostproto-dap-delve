@@ -1,0 +1,131 @@
+{
+  "$defs": {
+    "evidence-ref": {
+      "additionalProperties": false,
+      "description": "Content-addressed. A reference never implies authority to retrieve data outside the evidence bundle it belongs to.",
+      "properties": {
+        "media_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "path": {
+          "description": "Location inside its evidence bundle only.",
+          "type": "string"
+        },
+        "ref": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "hostproto.evidence-ref/v1"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source_refs": {
+          "description": "Raw records a normalized artifact was derived from.",
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "surface_class": {
+          "enum": [
+            "raw",
+            "normalized",
+            "contract",
+            "diagnostic",
+            "redacted"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "ref",
+        "surface_class",
+        "media_type",
+        "size_bytes"
+      ],
+      "title": "HostProto evidence reference v1",
+      "type": "object"
+    }
+  },
+  "$id": "https://hostproto.invalid/schemas/error.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "code": {
+            "enum": [
+              "target_invalidated",
+              "precondition_failed",
+              "writer_fenced",
+              "writer_conflict",
+              "capability_unsupported",
+              "capability_blocked",
+              "invalid_request"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "host_invoked": {
+            "const": false
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "code": {
+      "enum": [
+        "target_invalidated",
+        "precondition_failed",
+        "handle_expired",
+        "writer_fenced",
+        "writer_conflict",
+        "capability_unsupported",
+        "capability_blocked",
+        "capability_degraded",
+        "deadline_exceeded",
+        "host_rejected",
+        "host_failed",
+        "integrity_mismatch",
+        "invalid_request"
+      ]
+    },
+    "data": {
+      "type": "object"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/evidence-ref"
+      },
+      "type": "array"
+    },
+    "host_invoked": {
+      "description": "Whether the host was touched before this error. target_invalidated, precondition_failed, writer_fenced and capability_* MUST be false.",
+      "type": "boolean"
+    },
+    "message": {
+      "maxLength": 1024,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "hostproto.error/v1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "code",
+    "message",
+    "host_invoked"
+  ],
+  "title": "HostProto error v1",
+  "type": "object"
+}

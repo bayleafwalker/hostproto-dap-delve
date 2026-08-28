@@ -1,0 +1,144 @@
+{
+  "$id": "https://hostproto.invalid/schemas/capability-profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "runtime verification is earned only by an operation that completed in a passed run. Declaration never upgrades it. partial never satisfies an exact requirement.",
+  "properties": {
+    "adapter": {
+      "properties": {
+        "identity": {
+          "type": "object"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "assertable_fields": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "capabilities": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "if": {
+          "properties": {
+            "verification": {
+              "const": "runtime"
+            }
+          }
+        },
+        "properties": {
+          "availability": {
+            "enum": [
+              "supported",
+              "partial",
+              "unsupported",
+              "blocked"
+            ]
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "provider": {
+            "enum": [
+              "engine",
+              "injected",
+              "host",
+              "oracle"
+            ]
+          },
+          "runtime_executions": {
+            "description": "Required when verification is runtime.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "semantics": {
+            "enum": [
+              "exact",
+              "normalized",
+              "partial",
+              "none"
+            ]
+          },
+          "stability": {
+            "description": "Stability of the pinned adapter, not correctness. Evidence may still show exact semantics for an experimental one.",
+            "enum": [
+              "stable",
+              "experimental"
+            ]
+          },
+          "verification": {
+            "enum": [
+              "runtime",
+              "source-audit",
+              "declared",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "availability",
+          "provider",
+          "semantics",
+          "verification"
+        ],
+        "then": {
+          "required": [
+            "runtime_executions"
+          ]
+        },
+        "type": "object"
+      },
+      "minProperties": 1,
+      "type": "object"
+    },
+    "immutable_per_run": {
+      "const": true,
+      "description": "Capabilities do not change after admission. A degradation during a run is a recovery event (capability_degraded) that invalidates affected work, never a renegotiation."
+    },
+    "intent_family": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "profile": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "projections": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "hostproto.capability-profile/v1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "profile",
+    "adapter",
+    "capabilities",
+    "intent_family",
+    "projections"
+  ],
+  "title": "HostProto capability profile v1",
+  "type": "object"
+}
