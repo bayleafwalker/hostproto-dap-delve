@@ -44,7 +44,7 @@ describe('HostProto semantics on a real Go debugger', () => {
 
   it('builds, launches, stops on entry, mints handles', async () => {
     const { sc, isError } = await call('hostproto_context_create', { program: '.', cwd: PROGRAM, client: { id: 'conformance' } });
-    expect(isError).toBe(false);
+    expect(isError, JSON.stringify(sc)).toBe(false);
     expect(validator('handles')(sc)).toBe(true);
     expect(sc.adapter_profile).toBe('dap/v1');
     surface = sc.surface.id; context = sc.context.id;
