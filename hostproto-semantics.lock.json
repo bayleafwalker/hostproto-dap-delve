@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/bayleafwalker/hostproto-semantics",
+  "commit": "4c36ea776c2a46f5d79c059bae9ffb7312df31bf",
+  "path": "bundled",
+  "sha256": {
+    "capability-profile": "8991affc82c0345e11e0f7d1420424cb18bf3e58ee195dd1973acabcf8dc5dfd",
+    "deviation": "4274da1b5b04b7fefa1e7e3bdde5c5bb6bf5c305e174415c00a1d940c3108efb",
+    "error": "d89ee4a6462faace3051da037e65804ea2a67cb2afe56978c7644c4b1f7e01f6",
+    "evidence-ref": "541be0627da13afa69f54719a0b9ad11589a1c2bbd72a8026dc8ac938941cc31",
+    "handles": "29ba81ffc57f496a6c5079600cd0faa03acaf4574bb6640a5c1dbb17f887fe6c",
+    "intent": "8f22662bb4d37d1e67882f8564c1191aa69b92dc3b479b205bb6ba232a64f52f",
+    "observation": "710dba3cea3a3bc7a2efdd431c966b352f6aae856bd221dfed241d2ebe46334f",
+    "precondition": "9c2a888347b5b477d54bd2fa84841a1e3d7d64b88940a906dbe72e4ea7d61edc",
+    "receipt": "2a667afa650cdd39205ec927f748c942c4aeabf25ff5209b4c27a32a07dd49d1",
+    "recovery": "c5a00af7b90b655d18ee09697ee3e0ae1a4f5e8b8e2ad7f52b4dbe72c5d73b0b",
+    "target-ref": "767166031cd2c935d88f82808db67aaa465678beb538124f307c6923da3965c2"
+  }
+}

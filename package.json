@@ -1,0 +1,28 @@
+{
+  "name": "hostproto-dap-delve",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "HostProto DAP adapter: a Delve (Go) session exposed through MCP 2026-07-28",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "schemas": "node scripts/fetch-schemas.mjs",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "start": "tsx src/stdio.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/core": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
