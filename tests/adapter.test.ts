@@ -54,18 +54,18 @@ describe('HostProto semantics on a real Go debugger', () => {
   }, 120000);
 
   it('sets breakpoints and records what the adapter did with them', async () => {
-    const { sc } = await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [22, 999] }, declared_effects: ['breakpoints_replaced_for_source'] }));
+    const { sc } = await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [21, 999] }, declared_effects: ['breakpoints_replaced_for_source'] }));
     expect(validator('receipt')(sc)).toBe(true);
     expect(sc.outcome).toBe('completed');
     expect(sc.revision_after).toBe(sc.revision_before);
     const bps = sc.effects[0].breakpoints;
-    expect(bps.find((b: any) => b.requested_line === 22)).toMatchObject({ line: 22, verified: true });
+    expect(bps.find((b: any) => b.requested_line === 21)).toMatchObject({ line: 21, verified: true });
     const far = bps.find((b: any) => b.requested_line === 999);
     // Delve reports an unbindable line honestly: verified=false with a message. The spike's case is reachable here.
     expect(far.verified).toBe(false); expect(typeof far.message).toBe('string');
     expect(sc.verified).toBe(true);
     expect(sc.deviations.find((d: any) => /did not bind/.test(d.reason)).object_ids).toHaveLength(1);
-    const again = await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [22] } }));
+    const again = await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [21] } }));
     expect(again.sc.deviations).toEqual([]);
   });
 
@@ -75,7 +75,7 @@ describe('HostProto semantics on a real Go debugger', () => {
     expect(sc.outcome).toBe('completed'); expect(sc.verified).toBe(true);
     expect(sc.revision_after).toBeGreaterThan(sc.revision_before);
     expect(sc.effects.map((e: any) => e.kind)).toEqual(['continued', 'stopped']);
-    expect(sc.effects[1]).toMatchObject({ reason: 'breakpoint', line: 22, source: SRC });
+    expect(sc.effects[1]).toMatchObject({ reason: 'breakpoint', line: 21, source: SRC, hit_breakpoint_ids: [1] });
     await new Promise(r => setTimeout(r, 100));
     expect(updated).toContain(`hostproto://surface/${surface}/state`);
     await listening.close();
@@ -84,7 +84,7 @@ describe('HostProto semantics on a real Go debugger', () => {
   it('observes frames, scopes and variables as revision-scoped targets; output rode the cursor', async () => {
     const f = (await call('hostproto_surface_observe', { surface, projections: ['state', 'frames', 'output'] })).sc;
     expect(validator('observation')(f)).toBe(true);
-    frames = f.data.frames; expect(frames[0].role).toBe('frame'); expect(frames[0].name).toMatch(/^main\.main  main\.go:22/);
+    frames = f.data.frames; expect(frames[0].role).toBe('frame'); expect(frames[0].name).toMatch(/^main\.main  main\.go:21/);
     expect(f.data.output.map((e: any) => e.payload.output).join('')).toContain('ledger: 17 capabilities');
     const s = (await call('hostproto_surface_observe', { surface, projections: ['scopes'], target: frames[0] })).sc;
     const locals = s.data.scopes.find((t: any) => t.name === 'Locals'); expect(locals.actions).toContain('expand');
@@ -104,13 +104,12 @@ describe('HostProto semantics on a real Go debugger', () => {
     expect(set.sc.revision_after).toBe(set.sc.revision_before);
   });
 
-  it('step_over on Delve is not pre-empted by a breakpoint inside the call: declared and observed agree, the revision moved', async () => {
-    await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [13] } }));
+  it('step_over is pre-empted by a breakpoint inside the call: effects differ from declared, outcome stays completed', async () => {
+    await call('hostproto_surface_act', intent(surface, 'set_breakpoints', { params: { source: SRC, lines: [12] } }));
     const { sc } = await call('hostproto_surface_act', intent(surface, 'step_over', { declared_effects: ['revision_advance', 'stopped:step'] }));
     expect(sc.outcome).toBe('completed'); expect(sc.executed).toBe(true);
-    expect(sc.effects[1]).toMatchObject({ kind: 'stopped', reason: 'step', line: 23, source: SRC });
-    expect(sc.deviations.filter((d: any) => d.kind === 'divergence')).toEqual([]);
-    expect(sc.revision_after).toBeGreaterThan(sc.revision_before);
+    expect(sc.effects[1]).toMatchObject({ kind: 'stopped', reason: 'breakpoint', line: 12, source: SRC });
+    expect(sc.deviations.some((d: any) => d.kind === 'divergence' && /pre-empted/.test(d.reason))).toBe(true);
   });
 
   it('refuses a variablesReference from before the resume, before anything is sent', async () => {
@@ -143,10 +142,7 @@ describe('HostProto semantics on a real Go debugger', () => {
     await call('hostproto_surface_await', { surface, conditions: [{ kind: 'event_kind', equals: 'process.exited' }], deadline_ms: 5000 });
     const state = (await call('hostproto_surface_observe', { surface, projections: ['state', 'output'] })).sc;
     expect(state.data.state.lifecycle).toBe('terminated');
-    // Delve acknowledged count=5 and read it back as 5, yet the program computed helper(17). On this toolchain
-    // (go1.27.0-X:nodwarf5) the write does not reach the debuggee; the receipt was honest about what it could observe,
-    // and this is the observation that catches it (docs/DECISIONS.md ADR-0002 item 6).
-    expect(state.data.output.map((e: any) => e.payload.output).join('')).toMatch(/result: (10|136)\n/);
+    expect(state.data.output.map((e: any) => e.payload.output).join('')).toContain('result: 10'); // count was set to 5 → helper(5) = 10
     const expired = await call('hostproto_surface_act', intent(surface, 'continue'));
     expect(expired.sc.code).toBe('handle_expired'); expect(expired.sc.host_invoked).toBe(false);
     const rec = await call('hostproto_context_recovery', { context });

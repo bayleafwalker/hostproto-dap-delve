@@ -24,19 +24,34 @@ take if a third adapter appears.
    the launch response.
 3. `setBreakpoints` reports `verified: false` with a message for a line that
    cannot bind (debugpy relocates and verifies instead).
-4. `next` steps over a call even when a breakpoint sits inside it; Delve
-   does not let a nested breakpoint pre-empt the step.
+4. A breakpoint inside a called function pre-empts `next`, exactly as on
+   debugpy; `hitBreakpointIds` is populated on `stopped`.
 5. `pause` produces `stopped { reason: pause, allThreadsStopped: true }` for
    a runtime goroutine, not the main one; the surface the client holds is
    stamped from the same event, with the stopping thread recorded.
-6. **`setVariable` is acknowledged and reads back through `evaluate`, but
-   `variables` for the same reference still shows the old value and the
-   debuggee runs with the old value.** The receipt's `verified` is earned by
-   the read-back, which agrees with the adapter — and is still wrong about
-   the program. The discrepancy is only visible in the program's own output
-   afterwards. This is recorded as a toolchain-level fact (experimental
-   `nodwarf5` Go), not a HostProto defect: HostProto promised an observed
-   effect, delivered one, and the later observation is what catches the
-   lie. Re-check on a release Go toolchain.
+6. `setVariable` is acknowledged, reads back through `evaluate`, and the
+   debuggee honours it. `variables` for an already-served reference keeps
+   returning the values it served at that stop; a fresh read goes through
+   `evaluate` or a re-observation.
 7. `continued` events are sent after resume responses, as on debugpy; the
    grace-period synthesis in `act` was never exercised.
+
+## ADR-0003: a retracted finding — the fixture's line comments were off by one
+
+The first version of this repository claimed two Delve facts: that `next`
+is not pre-empted by a nested breakpoint, and that a `setVariable` Delve
+acknowledged and read back was never seen by the debuggee. Both were false.
+`fixtures/program/main.go` carried line comments one higher than the real
+lines, so the "breakpoint inside the call" sat on a closing brace (Delve
+said so: `could not find statement`, `verified: false` — and the receipt
+recorded it, unread), and the "stop before the call" was the `Println`
+after it, where `result` was already computed. Re-checked on both the
+development toolchain (go1.27 nodwarf5) and release Go 1.25.1 before
+retracting: identical.
+
+What survives: `verified` on `set_variable` is now earned by an
+independent read in both adapters, which is right regardless; and it was
+the program's own output, kept as evidence, that exposed the mistake. The
+lesson is aimed at the author, not the adapter: **read the deviations on
+every receipt, including the ones in your own test setup.** The semantics
+repository's ADR-0011 carries the same retraction.
