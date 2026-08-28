@@ -139,6 +139,8 @@ describe('HostProto semantics on a real Go debugger', () => {
     expect(sc.outcome).toBe('completed');
     expect(sc.effects.map((e: any) => e.kind)).toEqual(['continued', 'terminated']);
     await call('hostproto_surface_await', { surface, conditions: [{ kind: 'lifecycle', equals: 'terminated' }], deadline_ms: 5000 });
+    // `exited` is the last thing the adapter says about the process; output and the thread record precede it.
+    await call('hostproto_surface_await', { surface, conditions: [{ kind: 'event_kind', equals: 'process.exited' }], deadline_ms: 5000 });
     const state = (await call('hostproto_surface_observe', { surface, projections: ['state', 'output'] })).sc;
     expect(state.data.state.lifecycle).toBe('terminated');
     // Delve acknowledged count=5 and read it back as 5, yet the program computed helper(17). On this toolchain
